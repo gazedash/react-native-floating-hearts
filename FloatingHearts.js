@@ -45,7 +45,8 @@ class FloatingHearts extends Component {
   }
 
   render() {
-    const { height, color, renderCustomShape, source = require('./heart.png'), heartStyle } = this.props
+    const { height } = this.state
+    const { color, renderCustomShape, source = require('./heart.png'), heartStyle } = this.props
     const isReady = height !== null
 
     let heartProps = {}
