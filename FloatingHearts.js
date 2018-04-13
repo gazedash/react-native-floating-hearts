@@ -45,16 +45,16 @@ class FloatingHearts extends Component {
   }
 
   render() {
-    const { height } = this.state
-    const { color, renderCustomShape, source = require('./heart.png') } = this.props
+    const { height, color, renderCustomShape, source = require('./heart.png'), heartStyle } = this.props
     const isReady = height !== null
 
     let heartProps = {}
     if (color !== null) {
-      heartProps.color = color
+      heartProps.color = color,
     }
+    heartProps.heartStyle = heartStyle
     
-    const HeartShape = (props) => <Image source={source} style={{ tintColor: color }} {...props} />
+    const HeartShape = (props) => <Image source={source} style={{ tintColor: color, ...heartStyle }} {...props} />
 
     return (
       <View style={[styles.container, this.props.style]} onLayout={this.handleOnLayout} pointerEvents="none">
