@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { View, Animated, StyleSheet } from 'react-native'
+import { View, Animated, StyleSheet, Image } from 'react-native'
 
 /**
  * @class FloatingHearts
