@@ -2,8 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { View, Animated, StyleSheet } from 'react-native'
 
-import HeartShape from './HeartShape'
-
 /**
  * @class FloatingHearts
  */
@@ -48,13 +46,15 @@ class FloatingHearts extends Component {
 
   render() {
     const { height } = this.state
-    const { color, renderCustomShape } = this.props
+    const { color, renderCustomShape, source = require('./heart.png') } = this.props
     const isReady = height !== null
 
     let heartProps = {}
     if (color !== null) {
       heartProps.color = color
     }
+    
+    const HeartShape = (props) => <Image source={source} style={{ tintColor: color }} {...props} />
 
     return (
       <View style={[styles.container, this.props.style]} onLayout={this.handleOnLayout} pointerEvents="none">
