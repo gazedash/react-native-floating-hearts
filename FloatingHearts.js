@@ -1,85 +1,131 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { View, Animated, StyleSheet, Image } from 'react-native'
+import React, { Component } from "react";
+import {
+  View,
+  Animated,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Text
+} from "react-native";
 
 /**
  * @class FloatingHearts
  */
 
-class FloatingHearts extends Component {
+export class FloatingHearts extends Component {
   state = {
     hearts: [],
-    height: null,
-  }
+    height: null
+  };
 
   createHeart(index) {
     return {
       id: index,
-      right: getRandomNumber(50, 150),
-    }
+      right: getRandomNumber(0, 400)
+    };
   }
 
   removeHeart(id) {
-    this.setState({ hearts: this.state.hearts.filter(heart => heart.id !== id) })
+    this.setState({
+      hearts: this.state.hearts.filter(heart => heart.id !== id)
+    });
+  }
+
+  componentDidMount() {
+      const numHearts = this.props.count;
+  
+      if (numHearts <= 0) {
+        return;
+      }
+  
+      const items = Array(numHearts).fill();
+      const newHearts = items
+        .map((item, i) => numHearts + i)
+        .map(this.createHeart);
+  
+      this.setState({ hearts: this.state.hearts.concat(newHearts) });
   }
 
   componentWillUpdate(nextProps) {
-    const oldCount = this.props.count
-    const newCount = nextProps.count
-    const numHearts = newCount - oldCount
+    const oldCount = this.props.count;
+    const newCount = nextProps.count;
+    const numHearts = newCount - oldCount;
 
     if (numHearts <= 0) {
-      return
+      return;
     }
 
-    const items = Array(numHearts).fill()
-    const newHearts = items.map((item, i) => oldCount + i).map(this.createHeart)
+    const items = Array(numHearts).fill();
+    const newHearts = items
+      .map((item, i) => oldCount + i)
+      .map(this.createHeart);
 
-    this.setState({ hearts: this.state.hearts.concat(newHearts) })
+    this.setState({ hearts: this.state.hearts.concat(newHearts) });
   }
 
   handleOnLayout = e => {
-    const height = e.nativeEvent.layout.height
+    const height = e.nativeEvent.layout.height;
 
-    this.setState({ height })
-  }
+    this.setState({ height });
+  };
 
   render() {
-    const { height } = this.state
-    const { color, renderCustomShape, source = require('./heart.png'), heartStyle } = this.props
-    const isReady = height !== null
+    const { height } = this.state;
+    const {
+      color,
+      renderCustomShape,
+      source = require("./heart.png"),
+      heartStyle
+    } = this.props;
+    const isReady = height !== null;
 
-    let heartProps = {}
+    let heartProps = {};
     if (color !== null) {
-      heartProps.color = color,
+      heartProps.color = color;
     }
-    heartProps.heartStyle = heartStyle
-    
-    const HeartShape = (props) => <Image source={source} style={{ tintColor: color, ...heartStyle }} {...props} />
+    heartProps.heartStyle = heartStyle;
+
+    const HeartShape = props => (
+      <Image
+        source={source}
+        style={{ tintColor: color, ...heartStyle }}
+        {...props}
+      />
+    );
 
     return (
-      <View style={[styles.container, this.props.style]} onLayout={this.handleOnLayout} pointerEvents="none">
+      <View
+        style={[styles.container, this.props.style]}
+        onLayout={this.handleOnLayout}
+        pointerEvents="none"
+      >
         {isReady &&
-          this.state.hearts.map(({ id, right }) =>
-            <AnimatedShape key={id} height={height} style={{ right }} onComplete={this.removeHeart.bind(this, id)}>
-              {renderCustomShape ? renderCustomShape(id) : <HeartShape {...heartProps} />}
+          this.state.hearts.map(({ id, right }) => (
+            <AnimatedShape
+              key={id}
+              height={height}
+              style={{ right }}
+              onComplete={this.removeHeart.bind(this, id)}
+            >
+              {renderCustomShape ? (
+                renderCustomShape(id)
+              ) : (
+                <HeartShape {...heartProps} />
+              )}
             </AnimatedShape>
-          )}
+          ))}
       </View>
-    )
+    );
   }
 }
 
 FloatingHearts.propTypes = {
-  style: View.propTypes.style,
-  count: PropTypes.number,
-  color: PropTypes.string,
-  renderCustomShape: PropTypes.func,
-}
+  // style: View.propTypes.style,
+};
 
 FloatingHearts.defaultProps = {
-  count: -1,
-}
+  count: -1
+};
 
 // var {
 //   width: deviceWidth,
@@ -93,29 +139,29 @@ FloatingHearts.defaultProps = {
  * @class AnimatedShape
  */
 
-class AnimatedShape extends Component {
+export class AnimatedShape extends Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
       position: new Animated.Value(0),
       shapeHeight: null,
       enabled: false,
-      animationsReady: false,
-    }
+      animationsReady: false
+    };
   }
 
   componentDidMount() {
     Animated.timing(this.state.position, {
-      duration: 2000,
+      duration: 1200,
       useNativeDriver: true,
-      toValue: this.props.height * -1,
-    }).start(this.props.onComplete)
+      toValue: this.props.height * -1
+    }).start(this.props.onComplete);
   }
 
   getAnimationStyle() {
     if (!this.state.animationsReady) {
-      return { opacity: 0 }
+      return { opacity: 0 };
     }
 
     return {
@@ -123,22 +169,23 @@ class AnimatedShape extends Component {
         { translateY: this.state.position },
         { translateX: this.xAnimation },
         { scale: this.scaleAnimation },
-        { rotate: this.rotateAnimation },
+        { rotate: this.rotateAnimation }
       ],
-      opacity: this.opacityAnimation,
-    }
+      opacity: this.opacityAnimation
+    };
   }
 
   handleOnLayout = e => {
     if (this.rendered) {
-      return null
+      return null;
     }
 
-    this.rendered = true
+    this.rendered = true;
 
-    const height = Math.ceil(this.props.height)
-    const negativeHeight = height * -1
-    const shapeHeight = e.nativeEvent.layout.height
+    const height = Math.ceil(this.props.height);
+    const negativeHeight = height * -1;
+    const shapeHeight = e.nativeEvent.layout.height;
+
 
 //         this._yAnimation = this.state.position.interpolate({
 //       inputRange: [NEGATIVE_END_Y, 0],
@@ -165,86 +212,124 @@ class AnimatedShape extends Component {
 //       inputRange: [0, ANIMATION_END_Y/4, ANIMATION_END_Y/3, ANIMATION_END_Y/2, ANIMATION_END_Y],
 //       outputRange: ['0deg', '-2deg', '0deg', '2deg', '0deg']
 //     });
-    
+
     this.yAnimation = this.state.position.interpolate({
       inputRange: [negativeHeight, 0],
-      outputRange: [height, 0],
-    })
+      outputRange: [height, 0]
+    });
 
     this.opacityAnimation = this.yAnimation.interpolate({
-      inputRange: [0, height - shapeHeight],
-      outputRange: [1, 0],
-    })
+      inputRange: [
+        0,
+        height - shapeHeight <= 0
+          ? 1 + -(height - shapeHeight)
+          : height - shapeHeight,
+          height
+      ],
+      outputRange: [1, 0.2, 0]
+    });
 
     this.scaleAnimation = this.yAnimation.interpolate({
-      inputRange: [0, 15, 30, height],
-      outputRange: [0, 1.2, 1, 1],
-    })
+      inputRange: [0, 15, 30, height <= 30 ? 61 - height : height],
+      outputRange: [0, 1.2, 1, 1]
+    });
 
     this.xAnimation = this.yAnimation.interpolate({
       inputRange: [0, height / 2, height],
-      outputRange: [0, 15, 0],
-    })
+      outputRange: [0, 15, 0]
+    });
 
     this.rotateAnimation = this.yAnimation.interpolate({
       inputRange: [0, height / 4, height / 3, height / 2, height],
-      outputRange: ['0deg', '-2deg', '0deg', '2deg', '0deg'],
-    })
+      outputRange: ["0deg", "-20deg", "0deg", "20deg", "0deg"]
+    });
 
-    setTimeout(() => this.setState({ animationsReady: true }), 16)
-  }
+    setTimeout(() => this.setState({ animationsReady: true }), 16);
+  };
 
   render() {
     return (
       <Animated.View
-        style={[styles.shapeWrapper, this.getAnimationStyle(), this.props.style]}
+        style={[
+          styles.shapeWrapper,
+          this.getAnimationStyle(),
+          this.props.style
+        ]}
         onLayout={this.handleOnLayout}
       >
         {this.props.children}
       </Animated.View>
-    )
+    );
   }
 }
 
-AnimatedShape.propTypes = {
-  height: PropTypes.number.isRequired,
-  onComplete: PropTypes.func.isRequired,
-  style: View.propTypes.style,
-  children: PropTypes.node.isRequired,
-}
+AnimatedShape.propTypes = {};
 
 AnimatedShape.defaultProps = {
-  onComplete: () => {},
-}
+  onComplete: () => {}
+};
 
 /**
  * Styles
  */
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    position: 'absolute',
+    position: "absolute"
   },
 
   shapeWrapper: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
-    backgroundColor: 'transparent',
-  },
-})
+    backgroundColor: "transparent"
+  }
+});
 
 /**
  * Helpers
  */
 
-const getRandomNumber = (min, max) => Math.random() * (max - min) + min
+export const getRandomNumber = (min, max) => Math.random() * (max - min) + min;
 
-/**
- * Exports
- */
+export default class App extends Component {
+  state = {
+    count: 0
+  };
 
-export default FloatingHearts
+  componentDidMount() {
+    // const { count } = this.state;
+    // setInterval(() => {
+    //   this.setState({ count: count + Math.floor(Math.random() * 10) % 2 + 13 });
+    // }, 50);
+  }
+
+  render() {
+    const { count } = this.state;
+
+    return (
+      <View style={styless.container}>
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => this.setState({ count: count + 1 })}
+        >
+          <View>
+            <Text>555</Text>
+          </View>
+        </TouchableOpacity>
+        <FloatingHearts color={"red"} count={count} />
+      </View>
+    );
+  }
+}
+
+const styless = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 100,
+    height: 200
+  }
+});
